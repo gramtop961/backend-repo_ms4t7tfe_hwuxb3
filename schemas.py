@@ -1,48 +1,44 @@
 """
-Database Schemas
+Database Schemas for Whiskers game site
 
-Define your MongoDB collection schemas here using Pydantic models.
-These schemas are used for data validation in your application.
-
-Each Pydantic model represents a collection in your database.
-Model name is converted to lowercase for the collection name:
-- User -> "user" collection
-- Product -> "product" collection
-- BlogPost -> "blogs" collection
+Each Pydantic model corresponds to a MongoDB collection with the lowercase
+class name as the collection name.
 """
-
+from typing import Optional, List
 from pydantic import BaseModel, Field
-from typing import Optional
+from datetime import datetime
 
-# Example schemas (replace with your own):
 
-class User(BaseModel):
+class Devlogpost(BaseModel):
     """
-    Users collection schema
-    Collection name: "user" (lowercase of class name)
+    Collection: "devlogpost"
+    A development log entry about progress, features, or updates.
     """
-    name: str = Field(..., description="Full name")
-    email: str = Field(..., description="Email address")
-    address: str = Field(..., description="Address")
-    age: Optional[int] = Field(None, ge=0, le=120, description="Age in years")
-    is_active: bool = Field(True, description="Whether user is active")
+    title: str = Field(..., description="Post title")
+    summary: Optional[str] = Field(None, description="Short summary for previews")
+    content: str = Field(..., description="Full markdown or text content")
+    cover_image: Optional[str] = Field(None, description="Optional image URL")
+    tags: List[str] = Field(default_factory=list, description="Topic tags")
+    published_at: Optional[datetime] = Field(None, description="Optional publish date")
 
-class Product(BaseModel):
+
+class Milestone(BaseModel):
     """
-    Products collection schema
-    Collection name: "product" (lowercase of class name)
+    Collection: "milestone"
+    Roadmap milestones for the project.
     """
-    title: str = Field(..., description="Product title")
-    description: Optional[str] = Field(None, description="Product description")
-    price: float = Field(..., ge=0, description="Price in dollars")
-    category: str = Field(..., description="Product category")
-    in_stock: bool = Field(True, description="Whether product is in stock")
+    title: str = Field(..., description="Milestone title")
+    description: Optional[str] = Field(None, description="What this milestone includes")
+    status: str = Field("planned", description="planned | in_progress | done")
+    target_date: Optional[datetime] = Field(None, description="Target completion date")
 
-# Add your own schemas here:
-# --------------------------------------------------
 
-# Note: The Flames database viewer will automatically:
-# 1. Read these schemas from GET /schema endpoint
-# 2. Use them for document validation when creating/editing
-# 3. Handle all database operations (CRUD) directly
-# 4. You don't need to create any database endpoints!
+class Feedback(BaseModel):
+    """
+    Collection: "feedback"
+    Visitor feedback or playtest notes.
+    """
+    name: Optional[str] = Field(None, description="Visitor name")
+    email: Optional[str] = Field(None, description="Contact email")
+    message: str = Field(..., description="Feedback message")
+    topic: Optional[str] = Field(None, description="e.g., bug, idea, question")
